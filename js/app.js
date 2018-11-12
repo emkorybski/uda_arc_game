@@ -1,5 +1,6 @@
-// Enemy counter
-var counter = 1;
+
+var randVals = [3,7,9,2,7,4,8,2,10,6,9];
+
 // Enemies our player must avoid
 var Enemy = function() {
     // Variables applied to each of our instances go here,
@@ -9,8 +10,8 @@ var Enemy = function() {
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
     this.x = 0;
-    this.x_final = 400;
     this.y = 80;
+    this.rnd = Math.floor(Math.random() * Math.floor(7));
 };
 
 
@@ -25,62 +26,72 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-
-    this.x = this.x + 10;
+    //console.log(randNum);
+    this.x = this.x + randVals[this.rnd];
     this.x*dt;
 };
 
-Enemy.prototype.counterUp = function(){
-    counter++;
-};
+// Now instantiate your objects.
+// ADD up to 3 bugs and loop+rotate the with different x, y and delay params
+var bug_1 = new Enemy();
+//bug_1.update(10);
+var bug_2 = new Enemy();
+    bug_2.update(5);
+    bug_2.y = 150;
+    bug_2.x = 0;
+var bug_3 = new Enemy();
+    bug_3.update(3.5);
+    bug_3.y = 220;
+    bug_3.x = -1;
 
+// Place all enemy objects in an array called allEnemies
+var allEnemies = [bug_1, bug_2, bug_3];
 
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
-
-
-// Now instantiate your objects.
-var bug_1 = new Enemy();
-bug_1.update(2);
-
-var bug_2 = new Enemy();
-setTimeout(function(){
-    bug_1.update(10);
-    bug_2.y = 180;
-    bug_2.x = 0;
-}, 600);
-
-// ADD up to 5 bugs and loop+rotate the with different x, y and delay params
-
-// Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var allEnemies = [bug_1, bug_2];
+var Player = function(){
+    this.player_sprite = 'images/char-boy.png';
+    this.player_x = 200;
+    this.player_y = 350;
+};
 
-var player = {
-    player_sprite: 'images/char-boy.png',
-    player_x: 200,
-    player_y: 350,
-    update: function(){
-        // ctx.drawImage(Resources.get(this.sprite), this.x*dt, this.y);
-    },
-    render: function(){
-        ctx.drawImage(Resources.get(this.player_sprite), this.player_x, this.player_y);
-    },
-    handleInput: function(){
-
+Player.prototype.update = function(kc){
+    // ctx.drawImage(Resources.get(this.sprite), this.x*dt, this.y);
+    if(kc === 'left'){
+        this.player_x = this.player_x - 20;
+    }
+    if(kc === 'up'){
+        this.player_y = this.player_y - 15;
+    }
+    if(kc === 'right'){
+        this.player_x = this.player_x + 20;
+    }
+    if(kc === 'down'){
+        this.player_y = this.player_y + 15;
     }
 };
 
+Player.prototype.render = function(){
+    ctx.drawImage(Resources.get(this.player_sprite), this.player_x, this.player_y);
+};
+
+Player.prototype.handleInput = function(direction){
+    this.update(direction);
+};
+
+var player = new Player();
+
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
-document.addEventListener('keyup', function(e) {
+document.addEventListener('keydown', function(e) {
     var allowedKeys = {
         37: 'left',
         38: 'up',
         39: 'right',
         40: 'down'
     };
-
+    console.log(allowedKeys[e.keyCode]);
     player.handleInput(allowedKeys[e.keyCode]);
 });
