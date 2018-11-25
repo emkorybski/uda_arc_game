@@ -1,5 +1,23 @@
 
-var randVals = [3,7,9,2,7,4,8,2,10,6,9];
+var randMoveVals = [4,6,8];
+
+// all 3 'update()' values are dt values
+var allDts = [5.5,4,7];
+
+var allYs = [150,220,70];
+
+var allXs = [-20,-10,-25];
+
+var playerPositionX = [];
+
+var playerPositionY = [];
+
+var collision_alert = document.getElementById("collision-alert");
+
+// Boom! alert handled
+collision_alert.addEventListener("transitionend", function(){
+   this.classList.remove("animated");
+});
 
 // Enemies our player must avoid
 var Enemy = function() {
@@ -9,11 +27,10 @@ var Enemy = function() {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
-    this.x = -40;
-    this.y = 80;
-    this.rnd = Math.floor(Math.random() * Math.floor(7));
+    this.rnd = Math.floor(Math.random() * Math.floor(3));
+    this.x = allXs[this.rnd];
+    this.y = allYs[this.rnd];
 };
-
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
@@ -27,41 +44,42 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
     //console.log(randNum);
-    this.x = this.x + randVals[this.rnd];
+    this.x = this.x + randMoveVals[this.rnd];
     this.x*dt;
+
+    // detect collision with player
+    if (this.x < playerPositionX[0] + 25  && this.x + 30  > playerPositionX[0] &&
+        this.y < playerPositionY[0] + 30 && this.y + 30 > playerPositionY[0]) {
+        // objects are touching
+        collision_alert.classList.add("animated");
+        player.player_x = 200;
+        player.player_y = 350;
+    }
 };
 
 // Now instantiate your objects.
 // ADD up to 3 bugs and loop+rotate the with different x, y and delay params
 var bug_1 = new Enemy();
+    bug_1.update(7);
+
 var bug_2 = new Enemy();
     bug_2.update(5);
-    bug_2.y = 150;
-    bug_2.x = 0;
+
 var bug_3 = new Enemy();
-    bug_3.update(3.5);
-    bug_3.y = 220;
-    bug_3.x = -1;
-
-// bugs in a loop
-setInterval(function(){
-    bug_1.update(3);
-    bug_1.y = 80;
-    bug_1.x = -50;
-
-    bug_2.update(9);
-    bug_2.y = 150;
-    bug_2.x = -20;
-
-    bug_3.update(6);
-    bug_3.y = 220;
-    bug_3.x = -100;
-
-}, 2000); // 33 milliseconds = ~ 30 frames per sec
-
+    bug_3.update(3);
 
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [bug_1, bug_2, bug_3];
+
+// enemies/bugs in a ticker loop
+setInterval(function(){
+    // for each of the 3 bugs display one every turn, just appearing in different places on the pavement
+    var el = allEnemies[Math.floor(Math.random() * Math.floor(3))];
+    el.update(allDts[Math.floor(Math.random() * Math.floor(3))], player);
+    el.y = allYs[el.rnd];
+    el.x = allXs[el.rnd];
+
+}, 2000);
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -74,18 +92,49 @@ var Player = function(){
 };
 
 Player.prototype.update = function(kc){
-    // ctx.drawImage(Resources.get(this.sprite), this.x*dt, this.y);
     if(kc === 'left'){
-        this.player_x = this.player_x - 20;
+        this.player_x = this.player_x - 25;
     }
     if(kc === 'up'){
-        this.player_y = this.player_y - 15;
+        this.player_y = this.player_y - 20;
     }
     if(kc === 'right'){
-        this.player_x = this.player_x + 20;
+        this.player_x = this.player_x + 25;
     }
     if(kc === 'down'){
-        this.player_y = this.player_y + 15;
+        this.player_y = this.player_y + 20;
+    }
+
+    // handle hitting water
+    if(this.player_y < 50){
+        this.player_x = 200;
+        this.player_y = 350;
+    }
+
+    // handle moving off screen
+    if(this.player_y > 420){
+        this.player_y = 420;
+    }
+    if(this.player_x < 0){
+        this.player_x = 0;
+    }
+    if(this.player_x > 420 ){
+        this.player_x = 420;
+    }
+
+    // update player position in globally accessible array for player object to access and detect a collision
+    if(playerPositionX.length == 0){
+        playerPositionX.push(this.player_x);
+    } else {
+        playerPositionX.pop();
+        playerPositionX.push(this.player_x);
+    }
+
+    if(playerPositionY.length == 0){
+        playerPositionY.push(this.player_y);
+    } else {
+        playerPositionY.pop();
+        playerPositionY.push(this.player_y);
     }
 };
 
@@ -108,6 +157,8 @@ document.addEventListener('keydown', function(e) {
         39: 'right',
         40: 'down'
     };
-    console.log(allowedKeys[e.keyCode]);
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+
+
