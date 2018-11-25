@@ -8,4 +8,4 @@ To run the game:
 To play the game:
 1. Your task is take the main character (little boy in my case) through the pavement towards water so that it does not get hit by bugs.
 2. Bugs are coming from left to right at varying speeds. ONce the bug hits you/boy you are coming back to where you started.
-3. Use up/down/left/right arrows to move the boy.
+3. Use *up*/*down*/*left*/*right* arrows to move the boy.
